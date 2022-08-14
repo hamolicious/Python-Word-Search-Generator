@@ -1,188 +1,170 @@
 
-from random import choice, randint
+from random import choice, randint, shuffle
 import string
+import argparse
+from sys import argv
 import os
+from typing import Any
+
 
 def generate_grid(w: int, h: int) -> list[list[str]]:
-    grid = []
-    for _ in range(h):
-        row = []
-        for _ in range(w):
-            row.append(' ')
-        grid.append(row)
+		grid = []
+		for _ in range(h):
+				row = []
+				for _ in range(w):
+						row.append(' ')
+				grid.append(row)
 
-    return grid
+		return grid
+
 
 def populate_grid(words: list[str], grid: list[list[str]]) -> list[list[str]]:
-    for word in words:
-        done = False
-        tries = 10
-        while not done:
-            try:
-                start_x = randint(0, len(grid[0]) - len(word))
-                start_y = randint(0, len(grid) - len(word))
-                vel = choice([(1, 0), (0, 1), (1, 1)])
-            except ValueError:
-                done = True
-                break
+		for word in words:
+				done = False
+				tries = 10
+				while not done:
+						try:
+								start_x = randint(0, len(grid[0]) - len(word))
+								start_y = randint(0, len(grid) - len(word))
+								vel = choice([(1, 0), (0, 1), (1, 1)])
+						except ValueError:
+								done = True
+								break
 
-            valid_spot = True
-            x, y = start_x, start_y
-            for i in range(len(word)):
-                if grid[y][x] == ' ' or grid[y][x] == word[i]:
-                    pass
-                else:
-                    valid_spot = False
-                    tries -= 1
-                    break
+						valid_spot = True
+						x, y = start_x, start_y
+						for i in range(len(word)):
+								if grid[y][x] == ' ' or grid[y][x] == word[i]:
+										pass
+								else:
+										valid_spot = False
+										tries -= 1
+										break
 
-                x += vel[0]
-                y += vel[1]
+								x += vel[0]
+								y += vel[1]
 
-            if tries <= 0:
-                done = True
+						if tries <= 0:
+								done = True
 
-            if valid_spot:
-                x, y = start_x, start_y
-                for i in range(len(word)):
-                    grid[y][x] = word[i].upper()
-                    x += vel[0]
-                    y += vel[1]
-                done = True
+						if valid_spot:
+								x, y = start_x, start_y
+								for i in range(len(word)):
+										grid[y][x] = word[i].upper()
+										x += vel[0]
+										y += vel[1]
+								done = True
 
-    alphabet = string.ascii_uppercase
-    for i in range(len(grid)):
-        for j in range(len(grid[0])):
-            if grid[i][j] == ' ':
-                grid[i][j] = choice(alphabet)
+		alphabet = string.ascii_uppercase
+		for i in range(len(grid)):
+				for j in range(len(grid[0])):
+						if grid[i][j] == ' ':
+								grid[i][j] = choice(alphabet)
 
-    return grid
+		return grid
+
 
 def draw_grid(grid: list[list[str]]) -> None:
-    screen = ''
+		screen = ''
 
-    for row in grid:
-        screen += '\n'
-        do_once = True
-        for tile in row:
-            if do_once:
-                screen += '|'
-                do_once = False
-            screen += tile + '|'
+		for row in grid:
+				screen += '\n'
+				do_once = True
+				for tile in row:
+						if do_once:
+								screen += '|'
+								do_once = False
+						screen += tile + '|'
 
-    print(screen)
+		print(screen)
 
-def use_random() -> list[str]:
-    path = 'words.txt'
-    if os.path.exists(path):
-        with open(path, 'r') as file:
-            temp = file.readlines()
 
-        class wrd():
-            def __init__(self, word):
-                self.word = word
-                self.index = randint(0, 1000)
+def use_random(path: str, num_words: int) -> list[str]:
+		output = []
 
-            def __lt__(self, other):
-                return self.index < other.index
+		if os.path.exists(path):
+			with open(path, 'r') as file:
+					words = file.read().split('\n')
 
-        words = []
-        word_count = 5
-        for word in temp:
-            w = word.replace('\n', '')
-            words.append(wrd(w))
-        words.sort()
+			for _ in range(num_words):
+				shuffle(words)
+				output.append(words[0])
+				words.remove(words[0])
 
-        temp = []
-        for i in range(word_count):
-            temp.append(words[i].word)
+				if len(words) == 0:
+					break
 
-        return temp
+			return output
 
-def get_details() -> list:
-    # width
-    while True:
-        w = input('\nWhat is the width of the grid in characters?\n[>> ')
-        if w.isdigit():
-            w = int(w)
-            break
+		else:
+			raise FileNotFoundError(
+				f'file ({path}) cannot be found'
+			)
 
-    # height
-    while True:
-        h = input('\nWhat is the height of the grid in characters?\n[>> ')
-        if h.isdigit():
-            h = int(h)
-            break
 
-    # words
-    words = []
-    while True:
-        wrd = input('Please add the words to the bank, you can press ENTER to use random words and press "q" when you\'re finished.\n[>> ').strip().lower()
+def set_up_argparse() -> argparse.ArgumentParser:
+	parser = argparse.ArgumentParser()
 
-        if wrd == '':
-            words = use_random()
-            break
+	parser.add_argument(
+		'-w', '--width',
+		help='Defines the width of the board, defaults to 10',
+		type=int,
+	)
+	parser.add_argument(
+		'-e', '--height',
+		help='Defines the height of the board, defaults to 10',
+		type=int
+	)
+	parser.add_argument(
+		'-n', '--number',
+		help='Used for huge text lists, sets the maximum number of words that will be used, defaults to 5',
+		type=int
+	)
+	parser.add_argument(
+		'-l', '--word-list',
+		help='Points to a word list to use the words from, defaults to "./words.txt"',
+		type=str
+	)
 
-        if wrd == 'q':
-            break
+	return parser
 
-        for let in wrd:
-            if let not in 'qwertyuiopasdfghjklzxcvbnm':
-                print('Invalid word, words can only contain the following letters:', ''.join(i for i in sorted('qwertyuiopasdfghjklzxcvbnm')))
-                break
-        else:
-            words.append(wrd)
 
-    return w, h, words
+def parse_args(parser: argparse.ArgumentParser) -> argparse.Namespace:
+	args, _ = parser.parse_known_args()
+	return args
+
+
+def get_width() -> int:
+	return args.width if (args.width is not None) else 10
+
+
+def get_height() -> int:
+	return args.height if (args.height is not None) else 10
+
+
+def get_words() -> str:
+	return args.word_list if (args.word_list is not None) else './words.txt'
+
+
+def get_num_of_words() -> int:
+	return args.number if (args.number is not None) else 5
+
 
 def clear() -> None:
-    print('\n' * 50)
-
-width, height, words = get_details()
-
-while True:
-    grid = generate_grid(width, height)
-    grid = populate_grid(words, grid)
-
-    clear()
-    draw_grid(grid)
-
-    input('>')
+		print('\n' * 50)
 
 
+parser = set_up_argparse()
+args = parse_args(parser)
+width = get_width()
+height = get_height()
+path_word_list = get_words()
+num_words = get_num_of_words()
 
+grid = generate_grid(width, height)
+words = use_random(path_word_list, num_words)
+grid = populate_grid(words, grid)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+clear()
+draw_grid(grid)
 
