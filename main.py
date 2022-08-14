@@ -1,21 +1,19 @@
 
 from random import choice, randint
+import string
 import os
 
-def generate_grid(w, h):
-    global width, height
-    alphabet = 'qwertyuiopasdfghjklzxcvbnm'
-
+def generate_grid(w: int, h: int) -> list[list[str]]:
     grid = []
-    for i in range(h):
+    for _ in range(h):
         row = []
-        for j in range(w):
+        for _ in range(w):
             row.append(' ')
         grid.append(row)
 
     return grid
 
-def populate_grid(words, grid):
+def populate_grid(words: list[str], grid: list[list[str]]) -> list[list[str]]:
     for word in words:
         done = False
         tries = 10
@@ -52,7 +50,7 @@ def populate_grid(words, grid):
                     y += vel[1]
                 done = True
 
-    alphabet = 'qwertyuiopasdfghjklzxcvbnm'.upper()
+    alphabet = string.ascii_uppercase
     for i in range(len(grid)):
         for j in range(len(grid[0])):
             if grid[i][j] == ' ':
@@ -60,7 +58,7 @@ def populate_grid(words, grid):
 
     return grid
 
-def draw_grid(grid):
+def draw_grid(grid: list[list[str]]) -> None:
     screen = ''
 
     for row in grid:
@@ -74,7 +72,7 @@ def draw_grid(grid):
 
     print(screen)
 
-def use_random():
+def use_random() -> list[str]:
     path = 'words.txt'
     if os.path.exists(path):
         with open(path, 'r') as file:
@@ -101,7 +99,7 @@ def use_random():
 
         return temp
 
-def get_details():
+def get_details() -> list:
     # width
     while True:
         w = input('\nWhat is the width of the grid in characters?\n[>> ')
@@ -137,7 +135,7 @@ def get_details():
 
     return w, h, words
 
-def clear():
+def clear() -> None:
     print('\n' * 50)
 
 width, height, words = get_details()
