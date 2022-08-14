@@ -64,19 +64,29 @@ def populate_grid(words: list[str], grid: list[list[str]]) -> list[list[str]]:
 		return grid
 
 
-def draw_grid(grid: list[list[str]]) -> None:
+def draw_grid(grid: list[list[str]], used_words: list[str]) -> None:
+		used_words = iter(used_words)
+		pipe = '|'
+
+		screen = f'{pipe}{pipe.join(grid[0])}{pipe}'
+		line_len = len(screen.split('\n')[-1])
 		screen = ''
+		print(f'{" " * line_len}\tWords to Find:')
 
 		for row in grid:
-				screen += '\n'
-				do_once = True
-				for tile in row:
-						if do_once:
-								screen += '|'
-								do_once = False
-						screen += tile + '|'
+			try:
+				word = next(used_words)
+			except StopIteration:
+				word = ''
+			screen += f'\n{pipe}{pipe.join(row)}{pipe}\t{word}'
 
 		print(screen)
+		while True:
+			try:
+				word = next(used_words)
+				print(f'{" " * line_len}\t{word}')
+			except StopIteration:
+				break
 
 
 def use_random(path: str, num_words: int) -> list[str]:
@@ -166,5 +176,5 @@ words = use_random(path_word_list, num_words)
 grid = populate_grid(words, grid)
 
 clear()
-draw_grid(grid)
+draw_grid(grid, words)
 
