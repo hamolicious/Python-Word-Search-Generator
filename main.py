@@ -27,7 +27,7 @@ def populate_grid(words, grid):
             except ValueError:
                 done = True
                 break
-            
+
             valid_spot = True
             x, y = start_x, start_y
             for i in range(len(word)):
@@ -57,12 +57,12 @@ def populate_grid(words, grid):
         for j in range(len(grid[0])):
             if grid[i][j] == ' ':
                 grid[i][j] = choice(alphabet)
-            
+
     return grid
 
 def draw_grid(grid):
     screen = ''
-    
+
     for row in grid:
         screen += '\n'
         do_once = True
@@ -79,7 +79,7 @@ def use_random():
     if os.path.exists(path):
         with open(path, 'r') as file:
             temp = file.readlines()
-            
+
         class wrd():
             def __init__(self, word):
                 self.word = word
@@ -108,14 +108,14 @@ def get_details():
         if w.isdigit():
             w = int(w)
             break
-        
+
     # height
     while True:
         h = input('\nWhat is the height of the grid in characters?\n[>> ')
         if h.isdigit():
             h = int(h)
             break
-        
+
     # words
     words = []
     while True:
