@@ -11,7 +11,7 @@ path_word_list = arguments.get_words(args)
 num_words = arguments.get_num_of_words(args)
 
 grid = grid_utils.generate_grid(width, height)
-words = grid_utils.use_random(path_word_list, num_words)
+words = grid_utils.select_words_from_file(path_word_list, num_words)
 grid = grid_utils.populate_grid_with_words(words, grid)
 grid = grid_utils.populate_grid_with_random_let(grid)
 

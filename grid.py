@@ -6,17 +6,34 @@ import utils
 
 
 def generate_grid(w: int, h: int) -> list[list[str]]:
-		grid = []
-		for _ in range(h):
-				row = []
-				for _ in range(w):
-						row.append(' ')
-				grid.append(row)
+	"""Generates an empty grid
 
-		return grid
+	Args:
+			w (int): width
+			h (int): height
+
+	Returns:
+			list[list[str]]: 2d array representing the grid
+	"""
+	grid = []
+	for _ in range(h):
+			row = []
+			for _ in range(w):
+					row.append(' ')
+			grid.append(row)
+
+	return grid
 
 
 def generate_mask_from_grid(grid: list[list[str]]) -> list[list[int]]:
+	"""Generates a mask as a copy of the grid
+
+	Args:
+			grid (list[list[str]]): 2d array representing the grid
+
+	Returns:
+			list[list[int]]: copy of the grid where every cell is a 0
+	"""
 	mask = []
 
 	for row in grid:
@@ -29,6 +46,14 @@ def generate_mask_from_grid(grid: list[list[str]]) -> list[list[int]]:
 
 
 def populate_grid_with_random_let(grid: list[list[str]]) -> list[list[str]]:
+	"""Populates the grid with random letters, only replaces empty (' ') cells
+
+	Args:
+			grid (list[list[str]]): 2d array representing the grid
+
+	Returns:
+			list[list[str]]: returns the grid where every empty cell is now a random letter
+	"""
 	for i in range(len(grid)):
 		for j in range(len(grid[0])):
 			if grid[i][j] == ' ':
@@ -38,6 +63,15 @@ def populate_grid_with_random_let(grid: list[list[str]]) -> list[list[str]]:
 
 
 def populate_grid_with_words(words: list[str], grid: list[list[str]]) -> list[list[str]]:
+	"""Fills an empty grid with the passed in words from the word list
+
+	Args:
+			words (list[str]): a list of words to use
+			grid (list[list[str]]): 2d array representing the grid
+
+	Returns:
+			list[list[str]]: 2d array representing the grid with words filled in
+	"""
 	# HACK: need to think of a better algo to generate the words
 	mask = generate_mask_from_grid(grid)
 	shuffle(words)
@@ -86,6 +120,12 @@ def populate_grid_with_words(words: list[str], grid: list[list[str]]) -> list[li
 
 
 def draw_grid(grid: list[list[str]], used_words: list[str]) -> None:
+	"""Draws the grid to the console
+
+	Args:
+			grid (list[list[str]]): 2d array representing the grid
+			used_words (list[str]): the words that need to be found in the puzzle
+	"""
 	grid = utils.str_grid(grid)
 	used_words = iter(used_words)
 	pipe = '|'
@@ -111,25 +151,37 @@ def draw_grid(grid: list[list[str]], used_words: list[str]) -> None:
 			break
 
 
-def use_random(path: str, num_words: int) -> list[str]:
-		output = []
+def select_words_from_file(path: str, num_words: int) -> list[str]:
+	"""Collects the maximum number of words (based on -n)
 
-		if os.path.exists(path):
-			with open(path, 'r') as file:
-					words = file.read().split('\n')
+	Args:
+			path (str): path to the file containing the word list
+			num_words (int): maximum number of words
 
-			for _ in range(num_words):
-				shuffle(words)
-				output.append(words[0].upper())
-				words.remove(words[0])
+	Raises:
+			FileNotFoundError: if the passed in file is not found
 
-				if len(words) == 0:
-					break
+	Returns:
+			list[str]: a list of words to be used to generate the puzzle
+	"""
+	output = []
 
-			return output
+	if os.path.exists(path):
+		with open(path, 'r') as file:
+				words = file.read().split('\n')
 
-		else:
-			raise FileNotFoundError(
-				f'file ({path}) cannot be found'
-			)
+		for _ in range(num_words):
+			shuffle(words)
+			output.append(words[0].upper())
+			words.remove(words[0])
+
+			if len(words) == 0:
+				break
+
+		return output
+
+	else:
+		raise FileNotFoundError(
+			f'file ({path}) cannot be found'
+		)
 
